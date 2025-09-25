@@ -25,12 +25,12 @@ func NewTaskRepository(s *storage.Storage) TaskRepository {
 	}
 }
 
-const space = "taskRepository."
+const place = "taskRepository."
 
 func (tr *taskRepository) Create(ctx context.Context, task *models.Task) error {
-	op := space + "Create"
+	op := place + "Create"
 	query := "INSERT INTO tasks (id, title, description, status) VALUES ($1,$2,$3,$4)"
-	res, err := tr.Storage.Pool.Exec(ctx, query, task.ID, task.Title, task.Descpription, task.Status)
+	res, err := tr.Storage.Pool.Exec(ctx, query, task.ID, task.Title, task.Description, task.Status)
 	if err != nil {
 		return errs.NewAppError(op, err)
 	}
@@ -41,10 +41,10 @@ func (tr *taskRepository) Create(ctx context.Context, task *models.Task) error {
 }
 
 func (tr *taskRepository) GetById(ctx context.Context, id string) (*models.Task, error) {
-	op := space + "GetById"
+	op := place + "GetById"
 	query := "SELECT * FROM tasks WHERE id = $1"
 	task := models.Task{}
-	if err := tr.Storage.Pool.QueryRow(ctx, query, id).Scan(&task.ID, &task.Title, &task.Descpription, &task.Status); err != nil {
+	if err := tr.Storage.Pool.QueryRow(ctx, query, id).Scan(&task.ID, &task.Title, &task.Description, &task.Status); err != nil {
 		if errors.Is(err, storage.ErrNotFound()) {
 			return nil, errs.ErrNotFound(op)
 		}
@@ -54,7 +54,7 @@ func (tr *taskRepository) GetById(ctx context.Context, id string) (*models.Task,
 }
 
 func (tr *taskRepository) Get(ctx context.Context, amount, page int) ([]models.Task, error) {
-	op := space + "Get"
+	op := place + "Get"
 	query := "SELECT * FROM tasks OFFSET $1 LIMIT $2"
 	tasks := []models.Task{}
 	rows, err := tr.Storage.Pool.Query(ctx, query, amount*page-amount, amount)
@@ -64,7 +64,7 @@ func (tr *taskRepository) Get(ctx context.Context, amount, page int) ([]models.T
 	defer rows.Close()
 	for rows.Next() {
 		task := models.Task{}
-		if err := rows.Scan(&task.ID, &task.Title, &task.Descpription, &task.Status); err != nil {
+		if err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status); err != nil {
 			return nil, errs.NewAppError(op, err)
 		}
 		tasks = append(tasks, task)
@@ -73,7 +73,7 @@ func (tr *taskRepository) Get(ctx context.Context, amount, page int) ([]models.T
 }
 
 func (tr *taskRepository) UpdateStatus(ctx context.Context, id, status string) error {
-	op := space + "UpdateStatus"
+	op := place + "UpdateStatus"
 	query := "UPDATE tasks SET status = $1 WHERE id = $2"
 	res, err := tr.Storage.Pool.Exec(ctx, query, status, id)
 	if err != nil {

@@ -1,0 +1,31 @@
+app:
+  name: "READMEOW"
+  version: "1.0.0"
+  env: "${APP_ENV}"
+  logPath: "/logs/betera-tz.log"
+
+server:
+  host: "0.0.0.0"
+  port: "${SERVER_PORT}"
+  metricPort: "${METRIC_SERVER_PORT}"
+  writeTimeout: 10s
+  readTimeout: 10s
+  idleTimeout: 30s
+  requestTimeout: 10s
+  closeTimeout: 30s
+
+storage:
+  user: "${POSTGRES_USER}"
+  password: "${POSTGRES_PASSWORD}"
+  database: "${POSTGRES_DB}"
+  timezone: "Europe/Moscow"
+  host: "postgres"
+  port: "${POSTGRES_PORT}"
+  sslMode: "${SSL_MODE}"
+  connectTimeout: 10s
+  pingTimeout: 5s
+  amountOfConns: 15
+
+monitoring:
+  namespace: "readmeow"
+  
