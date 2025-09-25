@@ -1,5 +1,5 @@
 app:
-  name: "READMEOW"
+  name: "betera-tz"
   version: "1.0.0"
   env: "${APP_ENV}"
   logPath: "/logs/betera-tz.log"
@@ -27,5 +27,5 @@ storage:
   amountOfConns: 15
 
 monitoring:
-  namespace: "readmeow"
+  namespace: "betera-tz"
   
