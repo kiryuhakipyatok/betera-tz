@@ -26,7 +26,7 @@ type ServerInterface interface {
 	GetTasksId(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
 	// Update task status
 	// (PATCH /tasks/{id}/status)
-	PatchTasksIdStatus(w http.ResponseWriter, r *http.Request, id openapi_types.UUID)
+	PatchTasksIdStatus(w http.ResponseWriter, r *http.Request, id openapi_types.UUID, params dto.PatchTasksIdStatusParams)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -53,7 +53,7 @@ func (_ Unimplemented) GetTasksId(w http.ResponseWriter, r *http.Request, id ope
 
 // Update task status
 // (PATCH /tasks/{id}/status)
-func (_ Unimplemented) PatchTasksIdStatus(w http.ResponseWriter, r *http.Request, id openapi_types.UUID) {
+func (_ Unimplemented) PatchTasksIdStatus(w http.ResponseWriter, r *http.Request, id openapi_types.UUID, params dto.PatchTasksIdStatusParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -158,8 +158,26 @@ func (siw *ServerInterfaceWrapper) PatchTasksIdStatus(w http.ResponseWriter, r *
 		return
 	}
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params dto.PatchTasksIdStatusParams
+
+	// ------------- Required query parameter "status" -------------
+
+	if paramValue := r.URL.Query().Get("status"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "status"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "status", r.URL.Query(), &params.Status)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "status", Err: err})
+		return
+	}
+
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PatchTasksIdStatus(w, r, id)
+		siw.Handler.PatchTasksIdStatus(w, r, id, params)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {

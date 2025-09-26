@@ -32,6 +32,9 @@ func (tr *taskRepository) Create(ctx context.Context, task *models.Task) error {
 	query := "INSERT INTO tasks (id, title, description, status) VALUES ($1,$2,$3,$4)"
 	res, err := tr.Storage.Pool.Exec(ctx, query, task.ID, task.Title, task.Description, task.Status)
 	if err != nil {
+		if storage.ErrorAlreadyExists(err) {
+			return errs.ErrAlreadyExists(op, err)
+		}
 		return errs.NewAppError(op, err)
 	}
 	if res.RowsAffected() == 0 {
@@ -77,6 +80,9 @@ func (tr *taskRepository) UpdateStatus(ctx context.Context, id, status string) e
 	query := "UPDATE tasks SET status = $1 WHERE id = $2"
 	res, err := tr.Storage.Pool.Exec(ctx, query, status, id)
 	if err != nil {
+		if storage.CheckErr(err) {
+			return errs.ErrInvalidValues(op, err)
+		}
 		return errs.NewAppError(op, err)
 	}
 	if res.RowsAffected() == 0 {

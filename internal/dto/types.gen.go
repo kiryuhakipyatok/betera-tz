@@ -9,18 +9,16 @@ import (
 
 // Defines values for TaskResponseStatus.
 const (
-	TaskResponseStatusCreated    TaskResponseStatus = "created"
-	TaskResponseStatusDone       TaskResponseStatus = "done"
-	TaskResponseStatusFailed     TaskResponseStatus = "failed"
-	TaskResponseStatusProcessing TaskResponseStatus = "processing"
+	Created    TaskResponseStatus = "created"
+	Done       TaskResponseStatus = "done"
+	Failed     TaskResponseStatus = "failed"
+	Processing TaskResponseStatus = "processing"
 )
 
-// Defines values for UpdateTaskStatusRequestStatus.
-const (
-	UpdateTaskStatusRequestStatusDone       UpdateTaskStatusRequestStatus = "done"
-	UpdateTaskStatusRequestStatusFailed     UpdateTaskStatusRequestStatus = "failed"
-	UpdateTaskStatusRequestStatusProcessing UpdateTaskStatusRequestStatus = "processing"
-)
+type CreateTaskRequest struct {
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
 
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
@@ -45,14 +43,6 @@ type TaskResponse struct {
 // TaskResponseStatus defines model for TaskResponse.Status.
 type TaskResponseStatus string
 
-// UpdateTaskStatusRequest defines model for UpdateTaskStatusRequest.
-type UpdateTaskStatusRequest struct {
-	Status UpdateTaskStatusRequestStatus `json:"status"`
-}
-
-// UpdateTaskStatusRequestStatus defines model for UpdateTaskStatusRequest.Status.
-type UpdateTaskStatusRequestStatus string
-
 // GetTasksParams defines parameters for GetTasks.
 type GetTasksParams struct {
 	// Page Optional. Must be used together with 'amount'.
@@ -63,10 +53,12 @@ type GetTasksParams struct {
 }
 
 // PostTasksJSONBody defines parameters for PostTasks.
-type PostTasksJSONBody = interface{}
+type PostTasksJSONBody = CreateTaskRequest
+
+// PatchTasksIdStatusParams defines parameters for PatchTasksIdStatus.
+type PatchTasksIdStatusParams struct {
+	Status string `form:"status" json:"status"`
+}
 
 // PostTasksJSONRequestBody defines body for PostTasks for application/json ContentType.
 type PostTasksJSONRequestBody = PostTasksJSONBody
-
-// PatchTasksIdStatusJSONRequestBody defines body for PatchTasksIdStatus for application/json ContentType.
-type PatchTasksIdStatusJSONRequestBody = UpdateTaskStatusRequest

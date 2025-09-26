@@ -22,9 +22,10 @@ type taskService struct {
 	Logger         *logger.Logger
 }
 
-func NewTaskService(tr repositories.TaskRepository) TaskService {
+func NewTaskService(tr repositories.TaskRepository, l *logger.Logger) TaskService {
 	return &taskService{
 		TaskRepository: tr,
+		Logger:         l,
 	}
 }
 

@@ -3,7 +3,7 @@ info:
   title: Task Management API
   version: 1.0.0
 servers:
-  - url: http://localhost:7777
+  - url: http://localhost:3333
 paths:
   /tasks:
     post:
@@ -14,6 +14,7 @@ paths:
           application/json:
             schema:
               ref: '#/components/schemas/CreateTaskRequest'
+              x-go-type: CreateTaskRequest
       responses:
         '201':
           description: Task created
@@ -118,12 +119,11 @@ paths:
           schema:
             type: string
             format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateTaskStatusRequest'
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Status updated
@@ -153,6 +153,11 @@ components:
   schemas:
     TaskResponse:
       type: object
+      required:
+        - id
+        - title
+        - description
+        - status
       properties:
         id:
           type: string
@@ -182,18 +187,11 @@ components:
           type: string
           example: Feed dog in 3:00 pm
 
-    UpdateTaskStatusRequest:
-      type: object
-      required:
-        - status
-      properties:
-        status:
-          type: string
-          enum: [processing, done, failed]
-          example: done
-
     ErrorResponse:
       type: object
+      required:
+        - code
+        - message
       properties:
         code:
           type: integer
@@ -204,6 +202,9 @@ components:
       
     SuccessResponse:
       type: object
+      required:
+        - code
+        - message
       properties:
         code:
           type: integer

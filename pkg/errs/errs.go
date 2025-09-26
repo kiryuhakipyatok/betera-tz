@@ -8,6 +8,7 @@ import (
 var (
 	ErrNotFoundBase      = errors.New("not found")
 	ErrAlreadyExistsBase = errors.New("already exists")
+	ErrInvalidValuesBase = errors.New("invalid values")
 )
 
 type AppError struct {
@@ -32,6 +33,10 @@ func NewAppError(op string, err error) AppError {
 
 func ErrAlreadyExists(op string, err error) AppError {
 	return NewAppError(op, fmt.Errorf("%w : %w", ErrAlreadyExistsBase, err))
+}
+
+func ErrInvalidValues(op string, err error) AppError {
+	return NewAppError(op, fmt.Errorf("%w : %w", ErrInvalidValuesBase, err))
 }
 
 func ErrNotFound(op string) AppError {

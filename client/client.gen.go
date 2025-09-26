@@ -102,10 +102,8 @@ type ClientInterface interface {
 	// GetTasksId request
 	GetTasksId(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// PatchTasksIdStatusWithBody request with any body
-	PatchTasksIdStatusWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	PatchTasksIdStatus(ctx context.Context, id openapi_types.UUID, body dto.PatchTasksIdStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// PatchTasksIdStatus request
+	PatchTasksIdStatus(ctx context.Context, id openapi_types.UUID, params *dto.PatchTasksIdStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetTasks(ctx context.Context, params *dto.GetTasksParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -156,20 +154,8 @@ func (c *Client) GetTasksId(ctx context.Context, id openapi_types.UUID, reqEdito
 	return c.Client.Do(req)
 }
 
-func (c *Client) PatchTasksIdStatusWithBody(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPatchTasksIdStatusRequestWithBody(c.Server, id, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) PatchTasksIdStatus(ctx context.Context, id openapi_types.UUID, body dto.PatchTasksIdStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewPatchTasksIdStatusRequest(c.Server, id, body)
+func (c *Client) PatchTasksIdStatus(ctx context.Context, id openapi_types.UUID, params *dto.PatchTasksIdStatusParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchTasksIdStatusRequest(c.Server, id, params)
 	if err != nil {
 		return nil, err
 	}
@@ -319,19 +305,8 @@ func NewGetTasksIdRequest(server string, id openapi_types.UUID) (*http.Request, 
 	return req, nil
 }
 
-// NewPatchTasksIdStatusRequest calls the generic PatchTasksIdStatus builder with application/json body
-func NewPatchTasksIdStatusRequest(server string, id openapi_types.UUID, body dto.PatchTasksIdStatusJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewPatchTasksIdStatusRequestWithBody(server, id, "application/json", bodyReader)
-}
-
-// NewPatchTasksIdStatusRequestWithBody generates requests for PatchTasksIdStatus with any type of body
-func NewPatchTasksIdStatusRequestWithBody(server string, id openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+// NewPatchTasksIdStatusRequest generates requests for PatchTasksIdStatus
+func NewPatchTasksIdStatusRequest(server string, id openapi_types.UUID, params *dto.PatchTasksIdStatusParams) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -356,12 +331,28 @@ func NewPatchTasksIdStatusRequestWithBody(server string, id openapi_types.UUID, 
 		return nil, err
 	}
 
-	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "status", runtime.ParamLocationQuery, params.Status); err != nil {
+			return nil, err
+		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+			return nil, err
+		} else {
+			for k, v := range parsed {
+				for _, v2 := range v {
+					queryValues.Add(k, v2)
+				}
+			}
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-
-	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -420,10 +411,8 @@ type ClientWithResponsesInterface interface {
 	// GetTasksIdWithResponse request
 	GetTasksIdWithResponse(ctx context.Context, id openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetTasksIdResponse, error)
 
-	// PatchTasksIdStatusWithBodyWithResponse request with any body
-	PatchTasksIdStatusWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchTasksIdStatusResponse, error)
-
-	PatchTasksIdStatusWithResponse(ctx context.Context, id openapi_types.UUID, body dto.PatchTasksIdStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchTasksIdStatusResponse, error)
+	// PatchTasksIdStatusWithResponse request
+	PatchTasksIdStatusWithResponse(ctx context.Context, id openapi_types.UUID, params *dto.PatchTasksIdStatusParams, reqEditors ...RequestEditorFn) (*PatchTasksIdStatusResponse, error)
 }
 
 type GetTasksResponse struct {
@@ -559,17 +548,9 @@ func (c *ClientWithResponses) GetTasksIdWithResponse(ctx context.Context, id ope
 	return ParseGetTasksIdResponse(rsp)
 }
 
-// PatchTasksIdStatusWithBodyWithResponse request with arbitrary body returning *PatchTasksIdStatusResponse
-func (c *ClientWithResponses) PatchTasksIdStatusWithBodyWithResponse(ctx context.Context, id openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchTasksIdStatusResponse, error) {
-	rsp, err := c.PatchTasksIdStatusWithBody(ctx, id, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParsePatchTasksIdStatusResponse(rsp)
-}
-
-func (c *ClientWithResponses) PatchTasksIdStatusWithResponse(ctx context.Context, id openapi_types.UUID, body dto.PatchTasksIdStatusJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchTasksIdStatusResponse, error) {
-	rsp, err := c.PatchTasksIdStatus(ctx, id, body, reqEditors...)
+// PatchTasksIdStatusWithResponse request returning *PatchTasksIdStatusResponse
+func (c *ClientWithResponses) PatchTasksIdStatusWithResponse(ctx context.Context, id openapi_types.UUID, params *dto.PatchTasksIdStatusParams, reqEditors ...RequestEditorFn) (*PatchTasksIdStatusResponse, error) {
+	rsp, err := c.PatchTasksIdStatus(ctx, id, params, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
