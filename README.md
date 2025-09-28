@@ -101,12 +101,14 @@ KAFKA_PORT = 9092
 KIBANA_PORT = 5601
 ```
 
-3. Запустите приложение с инфраструктурой:
+3. В /logs создайте файл betera.log, а в /internal/domain/services test.log:
+
+4. Запустите приложение с инфраструктурой:
 ```bash
 make docker-run-all
 ```
 
-4. Выполните миграции в другом терминале:
+5. Выполните миграции в другом терминале:
 ```bash
 make docker-migrate-up
 ```
