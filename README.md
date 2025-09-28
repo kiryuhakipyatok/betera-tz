@@ -101,7 +101,7 @@ KAFKA_PORT = 9092
 KIBANA_PORT = 5601
 ```
 
-3. В /logs создайте файл betera.log, а в /internal/domain/services test.log:
+3. В /logs создайте файл `betera.log`, а в /internal/domain/services `test.log`:
 
 4. Запустите приложение с инфраструктурой:
 ```bash
