@@ -11,33 +11,32 @@ import (
 const (
 	Created    TaskResponseStatus = "created"
 	Done       TaskResponseStatus = "done"
-	Failed     TaskResponseStatus = "failed"
 	Processing TaskResponseStatus = "processing"
 )
 
+// ApiResponse defines model for ApiResponse.
+type ApiResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+// CreateTaskResponse defines model for CreateTaskResponse.
+type CreateTaskResponse struct {
+	Id openapi_types.UUID `json:"id"`
+}
+
+// CreateTaskRequest defines model for CreateTaskRequest.
 type CreateTaskRequest struct {
 	Title       *string `json:"title,omitempty"`
 	Description *string `json:"description,omitempty"`
 }
 
-// ErrorResponse defines model for ErrorResponse.
-type ErrorResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
-
-// SuccessResponse defines model for SuccessResponse.
-type SuccessResponse struct {
-	Code    *int    `json:"code,omitempty"`
-	Message *string `json:"message,omitempty"`
-}
-
 // TaskResponse defines model for TaskResponse.
 type TaskResponse struct {
-	Description *string             `json:"description,omitempty"`
-	Id          *openapi_types.UUID `json:"id,omitempty"`
-	Status      *TaskResponseStatus `json:"status,omitempty"`
-	Title       *string             `json:"title,omitempty"`
+	Description string             `json:"description"`
+	Id          openapi_types.UUID `json:"id"`
+	Status      TaskResponseStatus `json:"status"`
+	Title       string             `json:"title"`
 }
 
 // TaskResponseStatus defines model for TaskResponse.Status.

@@ -13,10 +13,13 @@ run:
 	@go run cmd/app/main.go
 
 docker-run-infra:
-	@docker-compose up -d postgres
+	@docker-compose up -d postgres kafka
+
+docker-run-elk:
+	@docker-compose up -d kibana filebeat logstash elasticsearch
 
 docker-run-app:
-	docker-compose up betera-tz --build 
+	docker-compose up -d betera-tz --build 
 
 docker-run-monitoring:
 	@docker-compose up -d  prometheus grafana
@@ -24,7 +27,7 @@ docker-run-monitoring:
 docker-app-logs:
 	@docker-compose logs -f betera-tz
 
-docker-run-all: docker-run-infra docker-run-app docker-run-monitoring docker-app-logs
+docker-run-all: docker-run-infra docker-run-elk docker-run-app docker-run-monitoring docker-app-logs
 
 docker-down:
 	@docker-compose down

@@ -2,6 +2,7 @@ package logger
 
 import (
 	"betera-tz/internal/config"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -12,13 +13,15 @@ const (
 	localEnv = "local"
 	devEnv   = "dev"
 	prodEnv  = "prod"
+	app      = "app"
+	http     = "http"
 )
 
 type Logger struct {
 	Log *slog.Logger
 }
 
-func NewLogger(acfg config.AppConfig) *Logger {
+func NewLogger(acfg config.AppConfig, typee string) *Logger {
 	var log *slog.Logger
 	env := acfg.Env
 	logFile, err := os.OpenFile(acfg.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
@@ -36,9 +39,18 @@ func NewLogger(acfg config.AppConfig) *Logger {
 	default:
 		log = slog.New(slog.NewJSONHandler(writer, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	}
+	var logType string
+	switch typee {
+	case app:
+		logType = app
+	case http:
+		logType = http
+	default:
+		panic(errors.New("invalid log type"))
+	}
 	logger := &Logger{
 		Log: log.With(
-			slog.String("type", "app"),
+			slog.String("type", logType),
 			slog.String("env", env),
 			slog.String("app", acfg.Name),
 			slog.String("version", acfg.Version),

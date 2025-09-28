@@ -18,13 +18,19 @@ storage:
   user: "${POSTGRES_USER}"
   password: "${POSTGRES_PASSWORD}"
   database: "${POSTGRES_DB}"
-  timezone: "Europe/Moscow"
+  timezone: "Europe/Minsk"
   host: "postgres"
   port: "${POSTGRES_PORT}"
   sslMode: "${SSL_MODE}"
   connectTimeout: 10s
   pingTimeout: 5s
   amountOfConns: 15
+
+queue:
+  broker: "kafka:9092"
+  topic: "tasks"
+  groupId: "tasks-processing"
+  timeout: 10s
 
 monitoring:
   namespace: "betera-tz"

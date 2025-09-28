@@ -15,6 +15,7 @@ type Config struct {
 	Server     ServerConfig     `mapstructure:"server"`
 	Storage    StorageConfig    `mapstructure:"storage"`
 	Monitoring MonitoringConfig `mapstructure:"monitoring"`
+	Queue      QueueConfig      `mapstructure:"queue"`
 }
 
 type AppConfig struct {
@@ -46,6 +47,13 @@ type StorageConfig struct {
 	ConnectTimeout time.Duration `mapstructure:"connectTimeout"`
 	PingTimeout    time.Duration `mapstructure:"pingTimeout"`
 	AmountOfConns  int32         `mapstructure:"amountOfConns"`
+}
+
+type QueueConfig struct {
+	Broker  string        `mapstructure:"broker"`
+	Topic   string        `mapstructure:"topic"`
+	GroupId string        `mapstructure:"groupId"`
+	Timeout time.Duration `mapstructure:"timeout"`
 }
 
 type MonitoringConfig struct {

@@ -6,7 +6,10 @@ import (
 	"betera-tz/internal/delivery/server"
 	"betera-tz/internal/domain/repositories"
 	"betera-tz/internal/domain/services"
+	"betera-tz/internal/workers"
 	"betera-tz/pkg/logger"
+	"betera-tz/pkg/monitoring"
+	"betera-tz/pkg/queue"
 	"betera-tz/pkg/storage"
 	"context"
 	"fmt"
@@ -19,7 +22,7 @@ import (
 
 func Run() {
 	cfg := config.MustLoadConfig(os.Getenv("CONFIG_PATH"))
-	logger := logger.NewLogger(cfg.App)
+	logger := logger.NewLogger(cfg.App, "app")
 	logger.Info("config loaded")
 
 	storage := storage.MustConnect(cfg.Storage)
@@ -29,31 +32,55 @@ func Run() {
 		logger.Info("storage closed")
 	}()
 
+	consumer := queue.NewConsumer(cfg.Queue)
+
+	producer := queue.NewProducer(cfg.Queue)
+
 	taskRepository := repositories.NewTaskRepository(storage)
 
-	taskService := services.NewTaskService(taskRepository, logger)
+	taskWorker := workers.NewTaskWorker(consumer, producer, logger, taskRepository)
+
+	taskService := services.NewTaskService(taskRepository, logger, producer)
 
 	taskHandler := handlers.NewTaskHandler(taskService)
 
-	appServer := server.NewAppServer(cfg.Server, taskHandler)
+	prometheusSetup := monitoring.NewPrometheusSetup(cfg.Monitoring)
+
+	go func() {
+		taskWorker.MustStart()
+	}()
+
+	logger.Info("task worker started")
+	appServer := server.NewAppServer(cfg.Server, cfg.App, taskHandler, prometheusSetup)
 	logger.Info("server created")
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), cfg.Server.CloseTimeout)
 		defer cancel()
 		appServer.MustClose(ctx)
-		logger.Info("server closed")
+		logger.Info("servers closed")
 	}()
 
-	ln, err := net.Listen("tcp", appServer.Server.Addr)
+	appListener, err := net.Listen("tcp", appServer.Server.Addr)
 	if err != nil {
 		panic(fmt.Errorf("failed to bind: %w", err))
 	}
 
-	logger.Info("server started", "addr", ln.Addr().String())
+	metricsListener, err := net.Listen("tcp", appServer.Metric.Addr)
+	if err != nil {
+		panic(fmt.Errorf("failed to bind: %w", err))
+	}
+
+	logger.Info("server started")
 
 	go func() {
-		if err := appServer.Server.Serve(ln); err != nil && err != http.ErrServerClosed {
-			panic(fmt.Errorf("failed to start server: %w", err))
+		if err := appServer.Server.Serve(appListener); err != nil && err != http.ErrServerClosed {
+			panic(fmt.Errorf("failed to start app server: %w", err))
+		}
+	}()
+
+	go func() {
+		if err := appServer.Metric.Serve(metricsListener); err != nil && err != http.ErrServerClosed {
+			panic(fmt.Errorf("failed to start metrics server: %w", err))
 		}
 	}()
 

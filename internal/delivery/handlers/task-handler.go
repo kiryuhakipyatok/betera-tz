@@ -6,7 +6,6 @@ import (
 	"betera-tz/internal/domain/services"
 	"betera-tz/internal/dto"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -29,16 +28,16 @@ func (th *TaskHandler) PostTasks(w http.ResponseWriter, r *http.Request) {
 		helper.WriteJSONError(w, apierr.InvalidRequest())
 		return
 	}
-	fmt.Println(*req.Title, *req.Description)
-	if err := th.TaskService.Create(ctx, *req.Title, *req.Description); err != nil {
+
+	id, err := th.TaskService.Create(ctx, *req.Title, *req.Description)
+	if err != nil {
 		helper.WriteJSONError(w, apierr.ToApiError(err))
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(dto.SuccessResponse{
-		Code:    helper.ToPtr(http.StatusCreated),
-		Message: helper.ToPtr("task created"),
+	json.NewEncoder(w).Encode(dto.CreateTaskResponse{
+		Id: *id,
 	})
 }
 
@@ -51,9 +50,9 @@ func (th *TaskHandler) PatchTasksIdStatus(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(dto.SuccessResponse{
-		Code:    helper.ToPtr(http.StatusOK),
-		Message: helper.ToPtr("task's status updated"),
+	json.NewEncoder(w).Encode(dto.ApiResponse{
+		Code:    http.StatusOK,
+		Message: "task's status updated",
 	})
 }
 

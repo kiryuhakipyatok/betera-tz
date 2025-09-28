@@ -9,7 +9,7 @@ import (
 )
 
 type TaskRepository interface {
-	Create(ctx context.Context, task *models.Task) error
+	Create(ctx context.Context, task *models.Task) (*string, error)
 	GetById(ctx context.Context, id string) (*models.Task, error)
 	Get(ctx context.Context, amount, page int) ([]models.Task, error)
 	UpdateStatus(ctx context.Context, id, status string) error
@@ -27,20 +27,21 @@ func NewTaskRepository(s *storage.Storage) TaskRepository {
 
 const place = "taskRepository."
 
-func (tr *taskRepository) Create(ctx context.Context, task *models.Task) error {
+func (tr *taskRepository) Create(ctx context.Context, task *models.Task) (*string, error) {
 	op := place + "Create"
 	query := "INSERT INTO tasks (id, title, description, status) VALUES ($1,$2,$3,$4)"
 	res, err := tr.Storage.Pool.Exec(ctx, query, task.ID, task.Title, task.Description, task.Status)
 	if err != nil {
 		if storage.ErrorAlreadyExists(err) {
-			return errs.ErrAlreadyExists(op, err)
+			return nil, errs.ErrAlreadyExists(op, err)
 		}
-		return errs.NewAppError(op, err)
+		return nil, errs.NewAppError(op, err)
 	}
 	if res.RowsAffected() == 0 {
-		return errs.ErrNotFound(op)
+		return nil, errs.ErrNotFound(op)
 	}
-	return nil
+	taskId := task.ID.String()
+	return &taskId, nil
 }
 
 func (tr *taskRepository) GetById(ctx context.Context, id string) (*models.Task, error) {
@@ -60,7 +61,8 @@ func (tr *taskRepository) Get(ctx context.Context, amount, page int) ([]models.T
 	op := place + "Get"
 	query := "SELECT * FROM tasks OFFSET $1 LIMIT $2"
 	tasks := []models.Task{}
-	rows, err := tr.Storage.Pool.Query(ctx, query, amount*page-amount, amount)
+	offset := (page - 1) * amount
+	rows, err := tr.Storage.Pool.Query(ctx, query, offset, amount)
 	if err != nil {
 		return nil, errs.NewAppError(op, err)
 	}

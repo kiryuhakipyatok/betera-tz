@@ -21,25 +21,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                ref: '#/components/schemas/CreateTaskResponse'
+                x-go-type: CreateTaskResponse
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
         '403':
           description: Already Exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
     get:
       summary: Get all tasks
       parameters:
@@ -73,7 +74,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
   /tasks/{id}:
     get:
       summary: Get task by ID
@@ -90,25 +91,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TaskResponse'
+                $ref: '#/components/schemas/ApiResponse'
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
         '404':
           description: Task not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
   /tasks/{id}/status:
     patch:
       summary: Update task status
@@ -130,25 +131,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: '#/components/schemas/ApiResponse'
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
         '500':
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
         '404':
           description: Task not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ApiResponse'
 components:
   schemas:
     TaskResponse:
@@ -171,7 +172,7 @@ components:
           example: Feed cat in 5:00 pm
         status:
           type: string
-          enum: [created, processing, done, failed]
+          enum: [created, processing, done]
           example: created
 
     CreateTaskRequest:
@@ -187,7 +188,17 @@ components:
           type: string
           example: Feed dog in 3:00 pm
 
-    ErrorResponse:
+    CreateResponse:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+
+    ApiResponse:
       type: object
       required:
         - code
@@ -199,17 +210,4 @@ components:
         message:
           type: string
           example: Interal Server Error
-      
-    SuccessResponse:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: Task created successfully
       

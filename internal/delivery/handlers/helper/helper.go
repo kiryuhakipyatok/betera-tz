@@ -14,7 +14,3 @@ func WriteJSONError(w http.ResponseWriter, apiErr apierr.ApiErr) {
 		"message": apiErr.Message,
 	})
 }
-
-func ToPtr[T any](v T) *T {
-	return &v
-}

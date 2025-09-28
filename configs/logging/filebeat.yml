@@ -1,0 +1,19 @@
+# filebeat.inputs:
+#   - type: filestream
+#     enabled: true
+#     paths:
+#       - /logs/*.log
+#     ignore_older: 0
+# output.logstash:
+#   hosts: ["logstash:5044"] 
+
+filebeat.inputs:
+  - type: filestream
+    enabled: true
+    paths:
+      - /logs/*.log
+    ignore_older: 0
+    json.keys_under_root: true
+    json.add_error_key: true
+output.logstash:
+  hosts: ["logstash:5044"] 

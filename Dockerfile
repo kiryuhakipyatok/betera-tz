@@ -13,12 +13,12 @@ RUN go build -o ./bin/app cmd/app/main.go
 
 FROM alpine AS runner
 
-# RUN apk add --no-cache tzdata
+RUN apk add --no-cache tzdata
 
-# ENV TZ=Europe/Minsk
+ENV TZ=Europe/Minsk
 
-# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-# RUN apk add --no-cache make
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apk add --no-cache make
 
 WORKDIR /app
 
