@@ -210,9 +210,10 @@ func TestTaskService_Get(t *testing.T) {
 		expectedResult []models.Task
 	}{
 		{
-			name:   "successful get with pagination",
-			amount: 10,
-			page:   1,
+			name:         "successful get with pagination",
+			amount:       10,
+			page:         1,
+			statusFilter: "",
 			mockSetup: func(mockRepo *MockTaskRepository) {
 				tasks := []models.Task{
 					{
@@ -228,7 +229,7 @@ func TestTaskService_Get(t *testing.T) {
 						Status:      "done",
 					},
 				}
-				mockRepo.On("Get", mock.Anything, 10, 1).Return(tasks, nil)
+				mockRepo.On("Get", mock.Anything, 10, 1, "").Return(tasks, nil)
 			},
 			expectedError: false,
 			expectedResult: []models.Task{
@@ -247,9 +248,10 @@ func TestTaskService_Get(t *testing.T) {
 			},
 		},
 		{
-			name:   "get all tasks (no pagination)",
-			amount: 0,
-			page:   0,
+			name:         "get all tasks (no pagination)",
+			amount:       0,
+			page:         0,
+			statusFilter: "",
 			mockSetup: func(mockRepo *MockTaskRepository) {
 				tasks := []models.Task{
 					{
@@ -259,7 +261,7 @@ func TestTaskService_Get(t *testing.T) {
 						Status:      "created",
 					},
 				}
-				mockRepo.On("Get", mock.Anything, 0, 0).Return(tasks, nil)
+				mockRepo.On("Get", mock.Anything, -1, -1, "").Return(tasks, nil)
 			},
 			expectedError: false,
 			expectedResult: []models.Task{
@@ -272,11 +274,64 @@ func TestTaskService_Get(t *testing.T) {
 			},
 		},
 		{
-			name:   "repository error",
-			amount: 10,
-			page:   1,
+			name:         "get all tasks (no pagination) with filter",
+			amount:       0,
+			page:         0,
+			statusFilter: "created",
 			mockSetup: func(mockRepo *MockTaskRepository) {
-				mockRepo.On("Get", mock.Anything, 10, 1).Return([]models.Task{}, errors.New("database error"))
+				tasks := []models.Task{
+					{
+						ID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
+						Title:       "Task 1",
+						Description: "Description 1",
+						Status:      "created",
+					},
+				}
+				mockRepo.On("Get", mock.Anything, -1, -1, "created").Return(tasks, nil)
+			},
+			expectedError: false,
+			expectedResult: []models.Task{
+				{
+					ID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
+					Title:       "Task 1",
+					Description: "Description 1",
+					Status:      "created",
+				},
+			},
+		},
+		{
+			name:         "get all tasks with pagination and filter",
+			amount:       10,
+			page:         1,
+			statusFilter: "created",
+			mockSetup: func(mockRepo *MockTaskRepository) {
+				tasks := []models.Task{
+					{
+						ID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
+						Title:       "Task 1",
+						Description: "Description 1",
+						Status:      "created",
+					},
+				}
+				mockRepo.On("Get", mock.Anything, 10, 1, "created").Return(tasks, nil)
+			},
+			expectedError: false,
+			expectedResult: []models.Task{
+				{
+					ID:          uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
+					Title:       "Task 1",
+					Description: "Description 1",
+					Status:      "created",
+				},
+			},
+		},
+		{
+			name:         "repository error",
+			amount:       10,
+			page:         1,
+			statusFilter: "created",
+			mockSetup: func(mockRepo *MockTaskRepository) {
+				mockRepo.On("Get", mock.Anything, 10, 1, "created").Return([]models.Task{}, errors.New("database error"))
 			},
 			expectedError:  true,
 			expectedResult: nil,
