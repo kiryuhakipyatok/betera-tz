@@ -5,7 +5,7 @@
 ## Возможности
 
 - ✅ Создание задач через REST API
-- ✅ Получение списка задач с пагинацией
+- ✅ Получение списка задач с пагинацией и фильтром по статусу
 - ✅ Получение задачи по ID
 - ✅ Обновление статуса задачи
 - ✅ Асинхронная обработка задач через очередь
@@ -37,18 +37,21 @@
 ```
 
 ### GET api/v1/tasks
-Получение списка задач с пагинацией
+Получение списка задач с пагинацией и фильтром по статусу
 ```
-GET /tasks?page=1&amount=10
+GET api/v1/tasks?page=1&amount=10&statusFilter=done
 ```
 
 ### GET api/v1/tasks/{id}
 Получение задачи по ID
+```
+GET api/v1/tasks/{id}
+```
 
 ### PATCH api/v1/tasks/{id}/status
 Обновление статуса задачи
 ```
-PATCH /tasks/{id}/status?status=processing
+PATCH api/v1/tasks/{id}/status?status=done
 ```
 
 ### GET /swagger
