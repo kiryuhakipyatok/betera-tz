@@ -27,7 +27,7 @@
 
 ## API Endpoints
 
-### POST /tasks
+### POST api/v1/tasks
 Создание новой задачи
 ```json
 {
@@ -36,16 +36,16 @@
 }
 ```
 
-### GET /tasks
+### GET api/v1/tasks
 Получение списка задач с пагинацией
 ```
 GET /tasks?page=1&amount=10
 ```
 
-### GET /tasks/{id}
+### GET api/v1/tasks/{id}
 Получение задачи по ID
 
-### PATCH /tasks/{id}/status
+### PATCH api/v1/tasks/{id}/status
 Обновление статуса задачи
 ```
 PATCH /tasks/{id}/status?status=processing
