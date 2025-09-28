@@ -6,12 +6,13 @@ import (
 	"betera-tz/pkg/storage"
 	"context"
 	"errors"
+	"fmt"
 )
 
 type TaskRepository interface {
 	Create(ctx context.Context, task *models.Task) (*string, error)
 	GetById(ctx context.Context, id string) (*models.Task, error)
-	Get(ctx context.Context, amount, page int) ([]models.Task, error)
+	Get(ctx context.Context, amount, page int, statusFilter string) ([]models.Task, error)
 	UpdateStatus(ctx context.Context, id, status string) error
 }
 
@@ -57,12 +58,35 @@ func (tr *taskRepository) GetById(ctx context.Context, id string) (*models.Task,
 	return &task, nil
 }
 
-func (tr *taskRepository) Get(ctx context.Context, amount, page int) ([]models.Task, error) {
+func (tr *taskRepository) Get(ctx context.Context, amount, page int, statusFilter string) ([]models.Task, error) {
 	op := place + "Get"
-	query := "SELECT * FROM tasks OFFSET $1 LIMIT $2"
+	args := []any{}
+	strs := []string{}
+	validStatus := map[string]bool{
+		"created":    true,
+		"processing": true,
+		"done":       true,
+	}
+	i := 0
+	if validStatus[statusFilter] {
+		i++
+		strs = append(strs, fmt.Sprintf("status = $%d", i))
+		args = append(args, statusFilter)
+	}
+	query := "SELECT * FROM tasks"
+	if len(strs) > 0 {
+		query += " WHERE " + strs[0]
+	}
+	if amount > 0 && page > 0 {
+		i++
+		offset := (page - 1) * amount
+		query += fmt.Sprintf(" OFFSET $%d LIMIT $%d", i, i+1)
+		args = append(args, offset, amount)
+	}
+
 	tasks := []models.Task{}
-	offset := (page - 1) * amount
-	rows, err := tr.Storage.Pool.Query(ctx, query, offset, amount)
+	fmt.Println(query)
+	rows, err := tr.Storage.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, errs.NewAppError(op, err)
 	}

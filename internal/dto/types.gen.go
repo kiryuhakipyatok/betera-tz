@@ -9,9 +9,16 @@ import (
 
 // Defines values for TaskResponseStatus.
 const (
-	Created    TaskResponseStatus = "created"
-	Done       TaskResponseStatus = "done"
-	Processing TaskResponseStatus = "processing"
+	TaskResponseStatusCreated    TaskResponseStatus = "created"
+	TaskResponseStatusDone       TaskResponseStatus = "done"
+	TaskResponseStatusProcessing TaskResponseStatus = "processing"
+)
+
+// Defines values for GetTasksParamsStatusFilter.
+const (
+	GetTasksParamsStatusFilterCreated    GetTasksParamsStatusFilter = "created"
+	GetTasksParamsStatusFilterDone       GetTasksParamsStatusFilter = "done"
+	GetTasksParamsStatusFilterProcessing GetTasksParamsStatusFilter = "processing"
 )
 
 // ApiResponse defines model for ApiResponse.
@@ -20,15 +27,15 @@ type ApiResponse struct {
 	Message string `json:"message"`
 }
 
+// CreateTaskRequest defines model for CreateTaskRequest.
+type CreateTaskRequest struct {
+	Description string `json:"description"`
+	Title       string `json:"title"`
+}
+
 // CreateTaskResponse defines model for CreateTaskResponse.
 type CreateTaskResponse struct {
 	Id openapi_types.UUID `json:"id"`
-}
-
-// CreateTaskRequest defines model for CreateTaskRequest.
-type CreateTaskRequest struct {
-	Title       *string `json:"title,omitempty"`
-	Description *string `json:"description,omitempty"`
 }
 
 // TaskResponse defines model for TaskResponse.
@@ -44,15 +51,13 @@ type TaskResponseStatus string
 
 // GetTasksParams defines parameters for GetTasks.
 type GetTasksParams struct {
-	// Page Optional. Must be used together with 'amount'.
-	Page *int `form:"page,omitempty" json:"page,omitempty"`
-
-	// Amount Optional. Must be used together with 'page'.
-	Amount *int `form:"amount,omitempty" json:"amount,omitempty"`
+	Amount       *int                        `form:"amount,omitempty" json:"amount,omitempty"`
+	Page         *int                        `form:"page,omitempty" json:"page,omitempty"`
+	StatusFilter *GetTasksParamsStatusFilter `form:"statusFilter,omitempty" json:"statusFilter,omitempty"`
 }
 
-// PostTasksJSONBody defines parameters for PostTasks.
-type PostTasksJSONBody = CreateTaskRequest
+// GetTasksParamsStatusFilter defines parameters for GetTasks.
+type GetTasksParamsStatusFilter string
 
 // PatchTasksIdStatusParams defines parameters for PatchTasksIdStatus.
 type PatchTasksIdStatusParams struct {
@@ -60,4 +65,4 @@ type PatchTasksIdStatusParams struct {
 }
 
 // PostTasksJSONRequestBody defines body for PostTasks for application/json ContentType.
-type PostTasksJSONRequestBody = PostTasksJSONBody
+type PostTasksJSONRequestBody = CreateTaskRequest

@@ -15,13 +15,17 @@ import (
 type TaskService interface {
 	Create(ctx context.Context, title, description string) (*uuid.UUID, error)
 	GetById(ctx context.Context, id string) (*models.Task, error)
-	Get(ctx context.Context, amount, page int) ([]models.Task, error)
+	Get(ctx context.Context, amount, page int, statusFilter string) ([]models.Task, error)
 	UpdateStatus(ctx context.Context, id, status string) error
+}
+
+type MessageProducer interface {
+	SendMessage(message queue.Message) error
 }
 
 type taskService struct {
 	TaskRepository repositories.TaskRepository
-	Producer       *queue.Producer
+	Producer       MessageProducer
 	Logger         *logger.Logger
 }
 
@@ -84,15 +88,15 @@ func (ts *taskService) GetById(ctx context.Context, id string) (*models.Task, er
 	return task, nil
 }
 
-func (ts *taskService) Get(ctx context.Context, amount, page int) ([]models.Task, error) {
+func (ts *taskService) Get(ctx context.Context, amount, page int, statusFilter string) ([]models.Task, error) {
 	op := place + "Get"
 	log := ts.Logger.AddOp(op)
 	log.Info("fetching tasks")
 	if amount <= 0 || page <= 0 {
-		page = 0
+		page = -1
 		amount = -1
 	}
-	tasks, err := ts.TaskRepository.Get(ctx, amount, page)
+	tasks, err := ts.TaskRepository.Get(ctx, amount, page, statusFilter)
 	if err != nil {
 		log.Error("failed to fetch tasks", logger.Err(err))
 		return nil, errs.NewAppError(op, err)

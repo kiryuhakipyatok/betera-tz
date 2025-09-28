@@ -188,6 +188,22 @@ func NewGetTasksRequest(server string, params *dto.GetTasksParams) (*http.Reques
 	if params != nil {
 		queryValues := queryURL.Query()
 
+		if params.Amount != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "amount", runtime.ParamLocationQuery, *params.Amount); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
 		if params.Page != nil {
 
 			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "page", runtime.ParamLocationQuery, *params.Page); err != nil {
@@ -204,9 +220,9 @@ func NewGetTasksRequest(server string, params *dto.GetTasksParams) (*http.Reques
 
 		}
 
-		if params.Amount != nil {
+		if params.StatusFilter != nil {
 
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "amount", runtime.ParamLocationQuery, *params.Amount); err != nil {
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "statusFilter", runtime.ParamLocationQuery, *params.StatusFilter); err != nil {
 				return nil, err
 			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
 				return nil, err
@@ -419,7 +435,6 @@ type GetTasksResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *[]dto.TaskResponse
-	JSON500      *dto.ApiResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -443,8 +458,6 @@ type PostTasksResponse struct {
 	HTTPResponse *http.Response
 	JSON201      *dto.CreateTaskResponse
 	JSON400      *dto.ApiResponse
-	JSON403      *dto.ApiResponse
-	JSON500      *dto.ApiResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -466,7 +479,7 @@ func (r PostTasksResponse) StatusCode() int {
 type GetTasksIdResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
-	JSON200      *dto.ApiResponse
+	JSON200      *dto.TaskResponse
 	JSON400      *dto.ApiResponse
 	JSON404      *dto.ApiResponse
 	JSON500      *dto.ApiResponse
@@ -578,13 +591,6 @@ func ParseGetTasksResponse(rsp *http.Response) (*GetTasksResponse, error) {
 		}
 		response.JSON200 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest dto.ApiResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
 	}
 
 	return response, nil
@@ -618,20 +624,6 @@ func ParsePostTasksResponse(rsp *http.Response) (*PostTasksResponse, error) {
 		}
 		response.JSON400 = &dest
 
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest dto.ApiResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest dto.ApiResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
 	}
 
 	return response, nil
@@ -652,7 +644,7 @@ func ParseGetTasksIdResponse(rsp *http.Response) (*GetTasksIdResponse, error) {
 
 	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest dto.ApiResponse
+		var dest dto.TaskResponse
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

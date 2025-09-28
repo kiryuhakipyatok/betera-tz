@@ -15,7 +15,7 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Get all tasks
+	// Get all tasks by pagination and filter
 	// (GET /tasks)
 	GetTasks(w http.ResponseWriter, r *http.Request, params dto.GetTasksParams)
 	// Create a new task
@@ -33,7 +33,7 @@ type ServerInterface interface {
 
 type Unimplemented struct{}
 
-// Get all tasks
+// Get all tasks by pagination and filter
 // (GET /tasks)
 func (_ Unimplemented) GetTasks(w http.ResponseWriter, r *http.Request, params dto.GetTasksParams) {
 	w.WriteHeader(http.StatusNotImplemented)
@@ -75,6 +75,14 @@ func (siw *ServerInterfaceWrapper) GetTasks(w http.ResponseWriter, r *http.Reque
 	// Parameter object where we will unmarshal all parameters from the context
 	var params dto.GetTasksParams
 
+	// ------------- Optional query parameter "amount" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "amount", r.URL.Query(), &params.Amount)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "amount", Err: err})
+		return
+	}
+
 	// ------------- Optional query parameter "page" -------------
 
 	err = runtime.BindQueryParameter("form", true, false, "page", r.URL.Query(), &params.Page)
@@ -83,11 +91,11 @@ func (siw *ServerInterfaceWrapper) GetTasks(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// ------------- Optional query parameter "amount" -------------
+	// ------------- Optional query parameter "statusFilter" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "amount", r.URL.Query(), &params.Amount)
+	err = runtime.BindQueryParameter("form", true, false, "statusFilter", r.URL.Query(), &params.StatusFilter)
 	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "amount", Err: err})
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "statusFilter", Err: err})
 		return
 	}
 

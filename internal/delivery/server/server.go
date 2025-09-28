@@ -12,11 +12,14 @@ import (
 	"os"
 	"time"
 
+	_ "betera-tz/docs"
+
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httplog"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type AppServer struct {
@@ -37,7 +40,7 @@ func NewAppServer(scfg config.ServerConfig, acfg config.AppConfig, si ServerInte
 	})
 	logFile, err := os.OpenFile(acfg.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		panic(fmt.Errorf("faield to open log file: %w", err))
+		panic(fmt.Errorf("failed to open log file: %w", err))
 	}
 	writer := io.MultiWriter(logFile, os.Stdout)
 	logger = logger.Output(writer)
@@ -59,6 +62,7 @@ func NewAppServer(scfg config.ServerConfig, acfg config.AppConfig, si ServerInte
 	})
 	r.Use(middleware.Recoverer)
 	r.Use(MetricsMiddleware(ps))
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -67,7 +71,11 @@ func NewAppServer(scfg config.ServerConfig, acfg config.AppConfig, si ServerInte
 			Message: "ok",
 		})
 	})
-	h := HandlerFromMux(si, r)
+
+	h := HandlerWithOptions(si, ChiServerOptions{
+		BaseURL:    "/api/v1",
+		BaseRouter: r,
+	})
 
 	return &AppServer{
 		Server: &http.Server{
@@ -83,10 +91,10 @@ func NewAppServer(scfg config.ServerConfig, acfg config.AppConfig, si ServerInte
 
 func (as *AppServer) MustClose(ctx context.Context) {
 	if err := as.Metric.Shutdown(ctx); err != nil {
-		panic(fmt.Errorf("faield to close metric server: %w", err))
+		panic(fmt.Errorf("failed to close metric server: %w", err))
 	}
 	if err := as.Server.Shutdown(ctx); err != nil {
-		panic(fmt.Errorf("faield to close app server: %w", err))
+		panic(fmt.Errorf("failed to close app server: %w", err))
 	}
 }
 

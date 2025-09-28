@@ -32,7 +32,7 @@ func (c *Consumer) HandleMessages(handler MessageHandler) error {
 		ctx := context.Background()
 		msg, err := c.Client.ReadMessage(ctx)
 		if err != nil {
-			return fmt.Errorf("faield to read message: %w", err)
+			return fmt.Errorf("failed to read message: %w", err)
 		}
 
 		message := Message{
@@ -42,12 +42,12 @@ func (c *Consumer) HandleMessages(handler MessageHandler) error {
 		}
 
 		if err := handler(message); err != nil {
-			log.Println("failed to handle message, will retry: %w", err)
+			log.Printf("failed to handle message, will retry: %v", err)
 			continue
 		}
 
 		if err := c.Client.CommitMessages(ctx, msg); err != nil {
-			log.Println("failed to commit message: %w", err)
+			log.Printf("failed to commit message: %v", err)
 		}
 
 	}

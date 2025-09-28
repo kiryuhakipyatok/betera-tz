@@ -37,7 +37,7 @@ func (tw *TaskWorker) MustStart() {
 	}
 
 	if err := tw.Consumer.HandleMessages(handler); err != nil {
-		panic(fmt.Errorf("faield to start task worker: %w", err))
+		panic(fmt.Errorf("failed to start task worker: %w", err))
 	}
 }
 
@@ -46,12 +46,12 @@ func (tw *TaskWorker) processTask(ctx context.Context, id string) error {
 	log := tw.Logger.AddOp(op)
 	log.Info("task processing")
 	if err := tw.TaskRepository.UpdateStatus(ctx, id, "processing"); err != nil {
-		log.Info("faield to update task's status", logger.Err(err))
+		log.Error("failed to update task's status", logger.Err(err))
 		return errs.NewAppError(op, err)
 	}
 	time.Sleep(time.Second * 10)
 	if err := tw.TaskRepository.UpdateStatus(ctx, id, "done"); err != nil {
-		log.Info("faield to update task's status", logger.Err(err))
+		log.Error("failed to update task's status", logger.Err(err))
 		return errs.NewAppError(op, err)
 	}
 	log.Info("task processed: ", "id", id)

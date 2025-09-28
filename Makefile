@@ -39,6 +39,10 @@ test:
 	@echo "Testing..."
 	@go test ./... -v
 
+test-unit:
+	@echo "Running unit tests..."
+	@go test ./internal/domain/services/... -v
+
 clean:
 	@echo "Cleaning..."
 	@rm -f main.exe

@@ -1,0 +1,194 @@
+basePath: /api/v1
+definitions:
+  dto.ApiResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  dto.CreateTaskRequest:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.CreateTaskResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  dto.TaskResponse:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/dto.TaskResponseStatus'
+      title:
+        type: string
+    type: object
+  dto.TaskResponseStatus:
+    enum:
+    - created
+    - done
+    - processing
+    type: string
+    x-enum-varnames:
+    - TaskResponseStatusCreated
+    - TaskResponseStatusDone
+    - TaskResponseStatusProcessing
+host: localhost:3333
+info:
+  contact: {}
+  description: This is a Task Management API
+  title: Task Management API
+  version: 1.0.0
+paths:
+  /api/v1/tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of tasks. All query parameters are optional.
+      parameters:
+      - description: Number of tasks per page
+        in: query
+        name: amount
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Filter by task status
+        enum:
+        - created
+        - processing
+        - done
+        in: query
+        name: statusFilter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of tasks
+          schema:
+            items:
+              $ref: '#/definitions/dto.TaskResponse'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+      summary: List tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task with title and description
+      parameters:
+      - description: Task to create
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CreateTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+      summary: Create a new task
+      tags:
+      - tasks
+  /api/v1/tasks/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a task by its ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+      summary: Get task by ID
+      tags:
+      - tasks
+  /api/v1/tasks/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Update status of a task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ApiResponse'
+      summary: Update task status
+      tags:
+      - tasks
+swagger: "2.0"

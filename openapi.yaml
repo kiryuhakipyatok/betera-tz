@@ -3,7 +3,7 @@ info:
   title: Task Management API
   version: 1.0.0
 servers:
-  - url: http://localhost:3333
+  - url: http://localhost:3333/api/v1
 paths:
   /tasks:
     post:
@@ -13,53 +13,43 @@ paths:
         content:
           application/json:
             schema:
-              ref: '#/components/schemas/CreateTaskRequest'
-              x-go-type: CreateTaskRequest
+              $ref: '#/components/schemas/CreateTaskRequest'
       responses:
         '201':
           description: Task created
           content:
             application/json:
               schema:
-                ref: '#/components/schemas/CreateTaskResponse'
-                x-go-type: CreateTaskResponse
+                $ref: '#/components/schemas/CreateTaskResponse'
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-        '403':
-          description: Already Exists
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
+
     get:
-      summary: Get all tasks
+      summary: Get all tasks by pagination and filter
       parameters:
-        - name: page
-          in: query
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            example: 1
-          description: "Optional. Must be used together with 'amount'."
         - name: amount
           in: query
           required: false
           schema:
             type: integer
-            minimum: 1
+            example: 10
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
             example: 1
-          description: "Optional. Must be used together with 'page'."
+        - name: statusFilter
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [created, processing, done]
+            example: done
       responses:
         '200':
           description: List of tasks
@@ -69,12 +59,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TaskResponse'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
+
   /tasks/{id}:
     get:
       summary: Get task by ID
@@ -91,7 +76,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
+                $ref: '#/components/schemas/TaskResponse'
         '400':
           description: Bad Request
           content:
@@ -169,7 +154,7 @@ components:
           example: Feed cat
         description:
           type: string
-          example: Feed cat in 5:00 pm
+          example: Feed cat at 5:00 pm
         status:
           type: string
           enum: [created, processing, done]
@@ -186,9 +171,9 @@ components:
           example: Feed dog
         description:
           type: string
-          example: Feed dog in 3:00 pm
+          example: Feed dog at 3:00 pm
 
-    CreateResponse:
+    CreateTaskResponse:
       type: object
       required:
         - id
@@ -209,5 +194,4 @@ components:
           example: 500
         message:
           type: string
-          example: Interal Server Error
-      
+          example: Internal Server Error

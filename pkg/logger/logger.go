@@ -26,7 +26,7 @@ func NewLogger(acfg config.AppConfig, typee string) *Logger {
 	env := acfg.Env
 	logFile, err := os.OpenFile(acfg.LogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-		panic(fmt.Errorf("faield to open log file: %w", err))
+		panic(fmt.Errorf("failed to open log file: %w", err))
 	}
 	writer := io.MultiWriter(logFile, os.Stdout)
 	switch env {

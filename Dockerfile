@@ -9,7 +9,7 @@ RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
 COPY . .
 
-RUN go build -o ./bin/app cmd/app/main.go
+RUN go build -o ./bin/app cmd/app/v1/main.go
 
 FROM alpine AS runner
 
