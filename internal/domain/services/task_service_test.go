@@ -104,7 +104,7 @@ func TestTaskService_Create(t *testing.T) {
 
 			mockRepo := new(MockTaskRepository)
 			mockProducer := new(MockProducer)
-			logger := logger.NewLogger(config.AppConfig{Name: "test", Version: "1.0.0", Env: "test", LogPath: "test.log"}, "app")
+			logger := logger.NewLogger(config.AppConfig{Name: "test", Version: "1.0.0", Env: "test", LogPath: "test.log"})
 
 			tt.mockSetup(mockRepo, mockProducer)
 
@@ -175,7 +175,7 @@ func TestTaskService_GetById(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(MockTaskRepository)
-			logger := logger.NewLogger(config.AppConfig{Name: "test", Version: "1.0.0", Env: "test", LogPath: "test.log"}, "app")
+			logger := logger.NewLogger(config.AppConfig{Name: "test", Version: "1.0.0", Env: "test", LogPath: "test.log"})
 
 			tt.mockSetup(mockRepo)
 
@@ -341,7 +341,7 @@ func TestTaskService_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(MockTaskRepository)
-			logger := logger.NewLogger(config.AppConfig{Name: "test", Version: "1.0.0", Env: "test", LogPath: "test.log"}, "app")
+			logger := logger.NewLogger(config.AppConfig{Name: "test", Version: "1.0.0", Env: "test", LogPath: "test.log"})
 
 			tt.mockSetup(mockRepo)
 
@@ -405,7 +405,7 @@ func TestTaskService_UpdateStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(MockTaskRepository)
-			logger := logger.NewLogger(config.AppConfig{Name: "test", Version: "1.0.0", Env: "test", LogPath: "test.log"}, "app")
+			logger := logger.NewLogger(config.AppConfig{Name: "test", Version: "1.0.0", Env: "test", LogPath: "test.log"})
 
 			tt.mockSetup(mockRepo)
 

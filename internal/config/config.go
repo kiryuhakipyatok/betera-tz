@@ -71,10 +71,7 @@ func MustLoadConfig(path string) *Config {
 	}
 	data = []byte(os.ExpandEnv(string(data)))
 	v := viper.New()
-	v.SetConfigName("config")
 	v.SetConfigType("yaml")
-	v.AutomaticEnv()
-	v.AddConfigPath(path)
 	if err := v.ReadConfig(bytes.NewBuffer(data)); err != nil {
 		panic(fmt.Errorf("failed to read config: %w", err))
 	}

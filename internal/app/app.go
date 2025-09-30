@@ -22,7 +22,7 @@ import (
 
 func Run() {
 	cfg := config.MustLoadConfig(os.Getenv("CONFIG_PATH"))
-	logger := logger.NewLogger(cfg.App, "app")
+	logger := logger.NewLogger(cfg.App)
 	logger.Info("config loaded")
 
 	storage := storage.MustConnect(cfg.Storage)
